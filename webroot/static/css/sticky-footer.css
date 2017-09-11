@@ -1,0 +1,29 @@
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 101px;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 101px;
+}
+
+#feedback {
+  position: fixed;
+  right: 5px;
+  bottom: 10px;
+  background: white;
+  border: solid 1px #e0e0e0;
+  padding: 10px 15px 10px 25px;
+  border-radius: 5px 0 0 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  color: #979faf;
+  z-index: 9999999;
+}
