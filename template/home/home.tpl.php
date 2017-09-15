@@ -23,71 +23,23 @@
       <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
   </head>
-
   <body>
 
-    <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#">Redis Cluster Dash</a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#contact">Contact</a></li>
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                <li><a href="#">Action</a></li>
-                <li><a href="#">Another action</a></li>
-                <li><a href="#">Something else here</a></li>
-                <li role="separator" class="divider"></li>
-                <li class="dropdown-header">Nav header</li>
-                <li><a href="#">Separated link</a></li>
-                <li><a href="#">One more separated link</a></li>
-              </ul>
-            </li>
-          </ul>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+<?php include TEMPLATE.'mod/nav.tpl.php'; ?>
 
     <div class="container" role="main">
-<?php if (count($tpl_servers) > 0) : ?>
       <div class="row">
         <div class="col-xs-12">
-          <table class="table table-hover">
-            <thead>
-              <th width="1">#</th>
-              <th>SERVER</th>
+          <h4>Node List</h4>
+          <table role="nodes-list" class="table table-hover" style="display: none;">
+            <thead><tr></tr>
             </thead>
             <tbody>
-            <?php foreach ($tpl_servers as $id => $server) : ?>
-              <tr>
-                <td><?php echo safeHtml($id + 1) ?></td>
-                <td><?php echo safeHtml($server['server']) ?></td>
-              </tr>
-            <?php endforeach ?>
             </tbody>
           </table>
-          <button class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg">MEET</button>
+          <button class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg">CLUSTER MEET</button>
         </div>
       </div>
-<?php else : ?>
-      <div class="row">
-        <div class="col-xs-12" style="margin: 1em auto;">
-          <button id="init" class="btn btn-primary btn-lg" data-toggle="modal" data-target=".bs-example-modal-lg">添加Redis服务器</button>
-        </div>
-      </div>
-<?php endif ?>
     </div> <!-- /container -->
 
 
@@ -99,23 +51,71 @@
   </body>
 </html>
 
-<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+<script type="text/javascript">
+$().ready(function() {
+
+  // cluster nodes list
+  function render_nodes_list() {
+    $.get('/ajax/cluster/nodes', function(resp, status) {
+      console.log(resp);
+
+      var nl = $('table[role=nodes-list]').css('display', '');
+      $("thead tr", nl).html('');
+      $("tbody", nl).html('');
+
+      var data = resp.data;
+      if (data.length <= 0) {
+        console.log("no cluster nodes");
+      }
+      for (title in data[0]) {
+        $("thead tr", nl).append("<th>" + title + "</th>");
+      }
+
+      for (idx in data) {
+        var new_tr = $("<tr>").appendTo($("tbody", nl));
+        for (k in data[idx]) {
+          $("<td>").html(data[idx][k]).attr('data-key', k).appendTo(new_tr);
+        }
+      }
+
+      function _make_node_link(e, id) {
+        if (id.length < 40) {return;}
+        var a = $('<a>').attr({"title": id, 'href': "/node/" + id});
+        a.html(id.substring(0, 16) + '...');
+        $(e).html(a);
+      }
+
+      $("td[data-key=id]").each(function(i, e) {
+        _make_node_link(e, $(e).html());
+      });
+
+      $("td[data-key=master]").each(function(i, e) {
+        _make_node_link(e, $(e).html());
+      });
+    });
+  };
+  render_nodes_list();
+  window.render_nodes_list_interval = window.setInterval(render_nodes_list, 3000);
+});
+</script>
+
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">添加Redis服务器</h4>
+        <h4 class="modal-title" id="myModalLabel">CLUSTER MEET</h4>
       </div>
       <div class="modal-body">
         <form>
           <div class="form-group">
-            <label for="exampleInputEmail1">REDIS SERVER IP:PORT</label>
+            <label for="">REDIS NODE IP:PORT</label>
             <input type="text" name="redis-server" class="form-control" placeholder="ip:port">
           </div>
-          <div class="form-group">
+          <!-- <div class="form-group">
             <label for="exampleInputEmail1">AUTH</label>
             <input type="text" name="redis-auth" class="form-control" placeholder="auth">
-          </div>
+          </div> -->
         </form>
       </div>
       <div class="modal-footer">
@@ -129,13 +129,11 @@
 $().ready(function() {
   $("#redis-submit").click(function() {
     var server = $('input[name=redis-server]').val();
-    var auth = $('input[name=redis-auth]').val();
 
     var data = new FormData();
     data.append('server', server);
-    data.append('auth', auth);
     $.ajax({
-      url: "/ajax/server/add",
+      url: "/ajax/cluster/meet",
       type: 'POST',
       data: data,
       mimeType: "multipart/form-data",
@@ -145,7 +143,7 @@ $().ready(function() {
       success: function (data, textStatus, jqXHR) {
         var result = JSON.parse(data);
         if (result.errno == 0) {
-          alert("add server success")
+          alert("meet successfully!");
           location.reload();
         } else {
           console.warn(result);

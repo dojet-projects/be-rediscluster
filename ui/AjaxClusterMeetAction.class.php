@@ -1,0 +1,23 @@
+<?php
+/**
+ *
+ * Filename: AjaxClusterMeetAction.class.php
+ *
+ * @author liyan
+ * @since 2017 9 13
+ */
+class AjaxClusterMeetAction extends RCBaseAction {
+
+    protected function rcExecute(DRedisIns $redis) {
+        $server = MRequest::post('server');
+        if (count($ip_port = explode(':', $server)) != 2) {
+            return $this->displayJsonFail('Illegal server');
+        }
+        list($ip, $port) = $ip_port;
+
+        $data = $redis->cluster_meet($ip, $port);
+
+        return $this->displayJsonSuccess($data);
+    }
+
+}

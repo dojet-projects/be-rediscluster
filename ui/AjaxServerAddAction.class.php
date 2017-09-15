@@ -9,11 +9,12 @@
  */
 class AjaxServerAddAction extends RCBaseAction {
 
-    protected function rcExecute($conf) {
+    protected function rcExecute(DRedisIns $redis) {
         $server = MRequest::post('server');
         $auth = MRequest::post('auth');
 
-        $this->servers[] = ['server' => $server, 'auth' => $auth];
+        list($address, $port) = explode(':', $server);
+        $this->servers[] = ['server' => ['address' => $address, 'port' => $port], 'auth' => $auth];
 
         return $this->displayJsonSuccess();
     }

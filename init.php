@@ -15,6 +15,7 @@ Config::loadConfig(CONFIG.'runtime');
 Config::loadConfig(CONFIG.'global');
 Config::loadConfig(CONFIG.'database/database');
 Config::loadConfig(CONFIG.'redis/redis');
+Config::loadConfig(CONFIG.'cluster');
 
 DAutoloader::getInstance()->addAutoloadPathArray(
     array(

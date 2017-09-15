@@ -9,8 +9,15 @@
  */
 class HomeAction extends RCBaseAction {
 
-    protected function rcExecute($conf) {
-        $this->assign('servers', $this->servers);
+    protected function rcExecute(DRedisIns $redis) {
+        $this->pageExecute();
+    }
+
+    protected function redis_error(Exception $e) {
+        $this->pageExecute();
+    }
+
+    protected function pageExecute() {
         $this->displayTemplate('home/home.tpl.php');
     }
 
