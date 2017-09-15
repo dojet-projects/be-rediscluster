@@ -44,6 +44,15 @@ class Cluster {
         return null;
     }
 
+    public function myself() {
+        foreach ($this->nodes() as $node) {
+            if ($node->isMyself()) {
+                return $node;
+            }
+        }
+        return null;
+    }
+
     public function toArray() {
         $array = [];
         foreach ($this->nodes as $node) {

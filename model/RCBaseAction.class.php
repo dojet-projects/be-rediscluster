@@ -15,14 +15,15 @@ abstract class RCBaseAction extends XBaseAction {
         $node = Config::configForKeyPath('cluster.node');
         try {
             $redis = DRedisIns::redis($node);
+            $cluster = Cluster::fromRedis($redis);
         } catch (Exception $e) {
             return $this->redis_error($e);
         }
 
-        $this->rcExecute($redis);
+        $this->rcExecute($cluster);
     }
 
-    abstract protected function rcExecute(DRedisIns $redis);
+    abstract protected function rcExecute(Cluster $cluster);
 
     protected function redis_error(Exception $e) {
 

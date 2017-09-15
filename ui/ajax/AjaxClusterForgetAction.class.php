@@ -8,10 +8,9 @@
  */
 class AjaxClusterForgetAction extends RCBaseAction {
 
-    protected function rcExecute(DRedisIns $redis) {
+    protected function rcExecute(Cluster $cluster) {
         $id = MRequest::post('id');
 
-        $cluster = Cluster::fromRedis($redis);
         foreach ($cluster->nodes() as $node) {
             if ($node->id() == $id) {
                 continue;

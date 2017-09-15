@@ -34,6 +34,8 @@
       <div class="row">
         <div class="col-xs-12">
           <h2>Node <?php echo safeHtml($tpl_node_id); ?></h2>
+          <h3>slots</h3>
+          <p id="slots"></p>
           <button class="btn btn-primary" id="btn-addslots">AddSlots</button>
           <h3>Info</h3>
           <p><?php echo nl2br(safeHtml($tpl_info));?></p>
@@ -51,6 +53,28 @@
   </body>
 </html>
 <script type="text/javascript">
+function get_slots() {
+  $.post('/ajax/cluster/slots', {id: node_id}, function(data, textStatus, jqXHR) {
+    var errno = data.errno;
+    if (0 == errno) {
+      var slots = data.data.slots;
+      $('#slots').html(
+        slots.map(function(e, i) {
+          return e[0] != e[1] ? e[0] + '-' + e[1] : e[0];
+        }).join(' , ')
+      );
+    } else {
+      console.log("[ERROR]" + data.message);
+    }
+  }, 'json');
+};
+
+$().ready(function() {
+  get_slots();
+  setInterval(get_slots, 3000);
+})
+</script>
+<script type="text/javascript">
 $().ready(function() {
   $('#btn-forget').click(function() {
     if (!confirm('are you sure to forget this node?')) {
@@ -60,6 +84,8 @@ $().ready(function() {
       var errno = data.errno;
       if (0 == errno) {
         window.location.href = '/';
+      } else {
+        alert("[ERROR]" + data.message);
       }
     }, "json");
   });
@@ -73,6 +99,7 @@ $().ready(function() {
       var errno = data.errno;
       if (0 == errno) {
         alert("add slots success");
+        get_slots();
       } else {
         alert("[ERROR]" + data.message);
       }

@@ -9,7 +9,7 @@
  */
 class AjaxServerAddAction extends RCBaseAction {
 
-    protected function rcExecute(DRedisIns $redis) {
+    protected function rcExecute(Cluster $cluster) {
         $server = MRequest::post('server');
         $auth = MRequest::post('auth');
 

@@ -9,7 +9,7 @@
  */
 class HomeAction extends RCBaseAction {
 
-    protected function rcExecute(DRedisIns $redis) {
+    protected function rcExecute(Cluster $cluster) {
         $this->pageExecute();
     }
 

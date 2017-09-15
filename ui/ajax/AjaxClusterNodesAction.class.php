@@ -8,8 +8,8 @@
  */
 class AjaxClusterNodesAction extends RCBaseAction {
 
-    protected function rcExecute(DRedisIns $redis) {
-        $data = Cluster::fromRedis($redis)->toArray();
+    protected function rcExecute(Cluster $cluster) {
+        $data = $cluster->toArray();
         return $this->displayJsonSuccess($data);
     }
 

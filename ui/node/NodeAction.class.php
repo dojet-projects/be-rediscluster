@@ -8,10 +8,15 @@
  */
 class NodeAction extends RCBaseAction {
 
-    protected function rcExecute(DRedisIns $redis) {
+    protected function rcExecute(Cluster $cluster) {
         $id = MRequest::param('id');
 
-        $info = $redis->info();
+        $node = $cluster->node($id);
+        if (is_null($node)) {
+            print 'node not exists';
+            return;
+        }
+        $info = $node->redis_info();
 
         $this->assign('node_id', $id);
         $this->assign('info', $info);

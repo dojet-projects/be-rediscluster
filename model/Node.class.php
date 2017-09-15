@@ -30,6 +30,11 @@ class Node {
         return new Node($str_node);
     }
 
+    public static function nodeById($id, DRedisIns $redis) {
+        $cluster = Cluster::fromRedis($redis);
+        return $cluster->node($id);
+    }
+
     public function toArray() {
         return $this->nodeArr;
     }
@@ -55,12 +60,31 @@ class Node {
         return $this->redis;
     }
 
+    public function isMyself() {
+        $flags = $this->nodeArr['flags'];
+        return in_array('myself', explode(',', $flags));
+    }
+
     public function forget($node_id) {
         return $this->redis()->cluster_forget($node_id);
     }
 
     public function addslots($slots) {
         return $this->redis()->cluster_addslots($slots);
+    }
+
+    public function slots() {
+        $slots = $this->redis()->cluster_slots();
+        return array_map(function($e) {
+            return [$e[0], $e[1]];
+        }, array_filter($slots, function($e) {
+            list($from, $to, list($ip, $port)) = $e;
+            return $ip == $this->ip() && $port == $this->port();
+        }));
+    }
+
+    public function redis_info() {
+        return $this->redis()->info();
     }
 
 }
