@@ -34,6 +34,7 @@
       <div class="row">
         <div class="col-xs-12">
           <h2>Node <?php echo safeHtml($tpl_node_id); ?></h2>
+          <button class="btn btn-primary" id="btn-addslots">AddSlots</button>
           <h3>Info</h3>
           <p><?php echo nl2br(safeHtml($tpl_info));?></p>
           <button class="btn btn-danger" id="btn-forget">FORGET</button>
@@ -59,6 +60,21 @@ $().ready(function() {
       var errno = data.errno;
       if (0 == errno) {
         window.location.href = '/';
+      }
+    }, "json");
+  });
+})
+</script>
+<script type="text/javascript">
+$().ready(function() {
+  $('#btn-addslots').click(function() {
+    var slots = prompt("input slots:");
+    $.post('/ajax/cluster/addslots', {id: node_id, slots: slots}, function(data, textStatus, jqXHR) {
+      var errno = data.errno;
+      if (0 == errno) {
+        alert("add slots success");
+      } else {
+        alert("[ERROR]" + data.message);
       }
     }, "json");
   });

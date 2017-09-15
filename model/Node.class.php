@@ -59,4 +59,8 @@ class Node {
         return $this->redis()->cluster_forget($node_id);
     }
 
+    public function addslots($slots) {
+        return $this->redis()->cluster_addslots($slots);
+    }
+
 }

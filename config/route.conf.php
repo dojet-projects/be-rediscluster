@@ -3,10 +3,11 @@
 Dispatcher::loadRoute(
     [
     '/^$/' => UI.'HomeAction',
-    '/^ajax\/server\/add$/' => UI.'AjaxServerAddAction',
-    '/^ajax\/cluster\/nodes$/' => UI.'AjaxClusterNodesAction',
-    '/^ajax\/cluster\/meet$/' => UI.'AjaxClusterMeetAction',
-    '/^ajax\/cluster\/forget$/' => UI.'AjaxClusterForgetAction',
+    '/^ajax\/server\/add$/' => UI.'ajax/AjaxServerAddAction',
+    '/^ajax\/cluster\/nodes$/' => UI.'ajax/AjaxClusterNodesAction',
+    '/^ajax\/cluster\/meet$/' => UI.'ajax/AjaxClusterMeetAction',
+    '/^ajax\/cluster\/forget$/' => UI.'ajax/AjaxClusterForgetAction',
+    '/^ajax\/cluster\/addslots$/' => UI.'ajax/AjaxClusterAddSlotsAction',
 
     '/^node\/(?<id>.*)$/' => UI.'node/NodeAction',
     '/^test$/' => UI.'TestAction',

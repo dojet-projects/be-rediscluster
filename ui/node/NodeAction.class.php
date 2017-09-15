@@ -12,6 +12,7 @@ class NodeAction extends RCBaseAction {
         $id = MRequest::param('id');
 
         $info = $redis->info();
+
         $this->assign('node_id', $id);
         $this->assign('info', $info);
         $this->displayTemplate('node/node.tpl.php');

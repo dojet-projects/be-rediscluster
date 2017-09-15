@@ -35,6 +35,15 @@ class Cluster {
         return $this->nodes;
     }
 
+    public function node($id) {
+        foreach ($this->nodes() as $node) {
+            if ($node->id() == $id) {
+                return $node;
+            }
+        }
+        return null;
+    }
+
     public function toArray() {
         $array = [];
         foreach ($this->nodes as $node) {
