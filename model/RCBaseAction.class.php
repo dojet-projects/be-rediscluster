@@ -12,7 +12,7 @@ require_once GLUTIL.'redis/require.inc.php';
 abstract class RCBaseAction extends XBaseAction {
 
     final public function execute() {
-        $node = Config::configForKeyPath('cluster.node');
+        $node = Config::runtimeConfigForKeyPath('cluster.node');
         try {
             $redis = DRedisIns::redis($node);
             $cluster = Cluster::fromRedis($redis);
