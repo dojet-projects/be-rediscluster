@@ -8,12 +8,11 @@
  */
 class AjaxClusterAddSlotsAction extends RCBaseAction {
 
-    protected function rcExecute(DRedisIns $redis) {
+    protected function rcExecute(Cluster $cluster) {
         $id = MRequest::post('id');
         $slots = MRequest::post('slots');
 
-        $cluster = Cluster::fromRedis($redis);
-        $node = Node::nodeById($id, $redis);
+        $node = $cluster->node($id);
         if (is_null($node)) {
             return $this->displayJsonFail('node not exists');
         }

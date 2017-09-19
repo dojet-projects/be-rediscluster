@@ -45,6 +45,9 @@ class Node {
 
     public function ip() {
         list($ip, ) = explode(':', $this->nodeArr['ip:port']);
+        if (empty($ip)) {
+            $ip = '127.0.0.1';
+        }
         return $ip;
     }
 
@@ -63,6 +66,10 @@ class Node {
     public function isMyself() {
         $flags = $this->nodeArr['flags'];
         return in_array('myself', explode(',', $flags));
+    }
+
+    public function meet($ip, $port) {
+        return $this->redis()->cluster_meet($ip, $port);
     }
 
     public function forget($node_id) {

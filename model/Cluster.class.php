@@ -44,6 +44,15 @@ class Cluster {
         return null;
     }
 
+    public function anynode() {
+        return $this->nodes[array_rand($this->nodes)];
+    }
+
+    public function meet($ip, $port) {
+        $node = $this->anynode();
+        return $node->meet($ip, $port);
+    }
+
     public function myself() {
         foreach ($this->nodes() as $node) {
             if ($node->isMyself()) {

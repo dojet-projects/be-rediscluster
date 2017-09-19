@@ -8,14 +8,14 @@
  */
 class AjaxClusterMeetAction extends RCBaseAction {
 
-    protected function rcExecute(DRedisIns $redis) {
+    protected function rcExecute(Cluster $cluster) {
         $server = MRequest::post('server');
         if (count($ip_port = explode(':', $server)) != 2) {
             return $this->displayJsonFail('Illegal server');
         }
         list($ip, $port) = $ip_port;
 
-        $data = $redis->cluster_meet($ip, $port);
+        $data = $cluster->meet($ip, $port);
 
         return $this->displayJsonSuccess($data);
     }
