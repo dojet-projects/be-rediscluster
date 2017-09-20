@@ -9,7 +9,7 @@
  */
 class TestAction extends RCBaseAction {
 
-    protected function rcExecute(DRedisIns $redis) {
+    protected function rcExecute(Cluster $cluster) {
         // $ret = $redis->get('a');
         // $ret = $redis->cluster_info();
         // $ret = $redis->cluster_slots();

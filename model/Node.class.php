@@ -82,12 +82,14 @@ class Node {
 
     public function slots() {
         $slots = $this->redis()->cluster_slots();
-        return array_map(function($e) {
+        return array_values(
+            array_map(function($e) {
             return [$e[0], $e[1]];
-        }, array_filter($slots, function($e) {
-            list($from, $to, list($ip, $port)) = $e;
-            return $ip == $this->ip() && $port == $this->port();
-        }));
+            }, array_filter($slots, function($e) {
+                list($from, $to, list($ip, $port)) = $e;
+                return $ip == $this->ip() && $port == $this->port();
+            }))
+        );
     }
 
     public function redis_info() {
