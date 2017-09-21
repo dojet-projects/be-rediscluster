@@ -35,6 +35,11 @@ class Node {
         return $cluster->node($id);
     }
 
+    public function isMyself() {
+        $flags = $this->nodeArr['flags'];
+        return in_array('myself', explode(',', $flags));
+    }
+
     public function toArray() {
         return $this->nodeArr;
     }
@@ -63,9 +68,8 @@ class Node {
         return $this->redis;
     }
 
-    public function isMyself() {
-        $flags = $this->nodeArr['flags'];
-        return in_array('myself', explode(',', $flags));
+    public function cluster() {
+        return Cluster::fromRedis($this->redis());
     }
 
     public function meet($ip, $port) {
@@ -80,6 +84,10 @@ class Node {
         return $this->redis()->cluster_addslots($slots);
     }
 
+    public function delslots($slots) {
+        return $this->redis()->cluster_delslots($slots);
+    }
+
     public function slots() {
         $slots = $this->redis()->cluster_slots();
         return array_values(
@@ -92,8 +100,36 @@ class Node {
         );
     }
 
+    public function setslot_importing($slot, $source_node_id) {
+        return $this->redis()->cluster_setslot($slot, 'IMPORTING', $source_node_id);
+    }
+
+    public function setslot_migrating($slot, $destination_node_id) {
+        return $this->redis()->cluster_setslot($slot, 'MIGRATING', $destination_node_id);
+    }
+
+    public function setslot_node($slot, $node_id) {
+        return $this->redis()->cluster_setslot($slot, 'NODE', $node_id);
+    }
+
+    public function setslot_stable($slot) {
+        return $this->redis()->cluster_setslot($slot, 'STABLE');
+    }
+
+    public function count_keys_in_slot($slot) {
+        return $this->redis()->cluster_countkeysinslot($slot);
+    }
+
+    public function get_keys_in_slot($slot, $count) {
+        return $this->redis()->cluster_getkeysinslot($slot, $count);
+    }
+
     public function redis_info() {
         return $this->redis()->info();
+    }
+
+    public function migrate($host, $port, $key, $destination_db, $timeout) {
+        return $this->redis()->migrate($host, $port, $key, $destination_db, $timeout);
     }
 
 }

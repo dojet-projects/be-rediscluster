@@ -38,6 +38,7 @@
             </tbody>
           </table>
           <button class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg">CLUSTER MEET</button>
+          <button class="btn btn-success pull-right" id="btn-rebalance">REBALANCE</button>
         </div>
       </div>
     </div> <!-- /container -->
@@ -152,6 +153,11 @@ $().ready(function() {
 
       }
     });
+  });
+});
+</script><script type="text/javascript">
+$().ready(function() {
+  $("#btn-rebalance").click(function() {
   });
 });
 </script>

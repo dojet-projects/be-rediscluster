@@ -1,29 +1,20 @@
 <?php
 /**
  *
- * Filename: AjaxClusterAddSlotsAction.class.php
+ * Filename: AjaxClusterDelSlotsAction.class.php
  *
  * @author liyan
  * @since 2017 9 15
  */
-class AjaxClusterAddSlotsAction extends RCBaseAction {
+class AjaxClusterDelSlotsAction extends RCBaseAction {
 
     protected function rcExecute(Cluster $cluster) {
         $id = MRequest::post('id');
         $slots = MRequest::post('slots');
 
-        $node = $cluster->node($id);
-        if (is_null($node)) {
-            return $this->displayJsonFail('node not exists');
-        }
-
-        $slots = array_map(function($s) {
-            return trim($s);
-        }, explode(",", $slots));
-        DAssert::assertNotEmptyNumericArray($slots);
-
         try {
-            $ret = $node->addslots($slots);
+            $slots = explode(',', $slots);
+            $ret = $cluster->delslots($slots);
         } catch (DRedisException $e) {
             if ($e->getCode() == DRedisException::REPLY_ERROR) {
                 return $this->displayJsonFail(null, $e->getMessage());

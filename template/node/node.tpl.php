@@ -37,6 +37,8 @@
           <h3>slots</h3>
           <p id="slots"></p>
           <button class="btn btn-primary" id="btn-addslots">AddSlots</button>
+          <button class="btn btn-danger" id="btn-delslots">DelSlots</button>
+          <button class="btn btn-success" id="btn-migrate">Migrate Slot</button>
           <h3>Info</h3>
           <p><?php echo nl2br(safeHtml($tpl_info));?></p>
           <button class="btn btn-danger" id="btn-forget">FORGET</button>
@@ -104,6 +106,42 @@ $().ready(function() {
         alert("[ERROR]" + data.message);
       }
     }, "json");
+  });
+})
+</script>
+<script type="text/javascript">
+$().ready(function() {
+  $('#btn-delslots').click(function() {
+    var slots = prompt("input slots:");
+    $.post('/ajax/cluster/delslots', {id: node_id, slots: slots}, function(data, textStatus, jqXHR) {
+      var errno = data.errno;
+      if (0 == errno) {
+        alert("del slots success");
+        get_slots();
+      } else {
+        alert("[ERROR]" + data.message);
+      }
+    }, "json");
+  });
+})
+</script>
+<script type="text/javascript">
+$().ready(function() {
+  $('#btn-migrate').click(function() {
+    var slot = prompt("input slot:");
+    var destination_node_id = prompt("destination_node_id:");
+    $.post('/ajax/cluster/migrate-slot',
+      {source_node_id: node_id, destination_node_id: destination_node_id, slot: slot},
+      function(data, textStatus, jqXHR) {
+        var errno = data.errno;
+        if (0 == errno) {
+          alert("migrate slot success");
+          get_slots();
+        } else {
+          alert("[ERROR]" + data.message);
+        }
+      },
+    "json");
   });
 })
 </script>

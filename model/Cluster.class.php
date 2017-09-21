@@ -10,6 +10,8 @@ class Cluster {
 
     private $nodes;
 
+    private $slots;
+
     function __construct($nodes) {
         DAssert::assertArray($nodes);
         foreach ($nodes as $node) {
@@ -60,6 +62,22 @@ class Cluster {
             }
         }
         return null;
+    }
+
+    protected function slots() {
+        return $this->slots;
+    }
+
+    public function delslots($slots) {
+        $nodes = $this->nodes();
+        foreach ($nodes as $node) {
+            try {
+                $node->delslots($slots);
+            } catch (Exception $e) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public function toArray() {
