@@ -61,11 +61,26 @@ class Node {
         return $port;
     }
 
-    private function redis() {
+    public function redis() {
         if (is_null($this->redis)) {
             $this->redis = DRedisIns::redis(['address' => $this->ip(), 'port' => $this->port()]);
         }
         return $this->redis;
+    }
+
+    public function sameWith(Node $node) {
+        $nodeArr = $node->toArray();
+        if ($nodeArr['id'] !== $this->nodeArr['id']) {
+            return false;
+        }
+        if ($nodeArr['ip:port'] !== $this->nodeArr['ip:port']) {
+            return false;
+        }
+        if ($nodeArr['slots'] !== $this->nodeArr['slots']) {
+            return false;
+        }
+
+        return true;
     }
 
     public function cluster() {
@@ -88,11 +103,26 @@ class Node {
         return $this->redis()->cluster_delslots($slots);
     }
 
+    public function cluster_slots() {
+        return $this->redis()->cluster_slots();
+    }
+
+    public function cluster_info() {
+        $str = $this->redis()->cluster_info();
+        return array_map(function($e) {
+            return explode(":", trim($e));
+        }, explode("\n", trim($str)));
+    }
+
+    public function cluster_nodes() {
+        return $this->redis()->cluster_nodes();
+    }
+
     public function slots() {
-        $slots = $this->redis()->cluster_slots();
+        $slots = $this->cluster_slots();
         return array_values(
             array_map(function($e) {
-            return [$e[0], $e[1]];
+                return [$e[0], $e[1]];
             }, array_filter($slots, function($e) {
                 list($from, $to, list($ip, $port)) = $e;
                 return $ip == $this->ip() && $port == $this->port();
@@ -125,7 +155,24 @@ class Node {
     }
 
     public function redis_info() {
-        return $this->redis()->info();
+        $str = $this->redis()->info();
+        $arrLines = array_filter(array_map(function($line) {
+            return trim($line);
+        }, explode("\r", $str)), function($line) {
+            return !empty($line);
+        });
+
+        $info = [];
+        foreach ($arrLines as $line) {
+            if (strpos($line, "# ") === 0) {
+                $i = &$info[substr($line, 2)];
+                continue;
+            }
+            $p = strpos($line, ":");
+            $i[substr($line, 0, $p)] = substr($line, $p);
+        }
+        unset($i);
+        return $info;
     }
 
     public function migrate($host, $port, $key, $destination_db, $timeout) {

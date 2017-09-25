@@ -33,7 +33,16 @@
     <div class="container" role="main">
       <div class="row">
         <div class="col-xs-12">
-          <h2>Node <?php echo safeHtml($tpl_node_id); ?></h2>
+          <h2>Node <?php echo safeHtml($tpl_node_id); ?>
+            <small>
+              IP: <?php echo $tpl_node_ip ?>
+              Port: <?php echo $tpl_node_port ?>
+            </small>
+          </h2>
+          <p><?php echo join("<br />", array_map(function($e) {
+            return join(":", $e);
+          }, $tpl_cluster_info)); ?></p>
+          <button class="btn btn-success" id="btn-replicate">Replicate</button>
           <h3>slots</h3>
           <p id="slots"></p>
           <button class="btn btn-primary" id="btn-addslots">AddSlots</button>

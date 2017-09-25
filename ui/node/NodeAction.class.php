@@ -17,9 +17,13 @@ class NodeAction extends RCBaseAction {
             return;
         }
         $info = $node->redis_info();
+        $cluster_info = $node->cluster_info();
 
         $this->assign('node_id', $id);
+        $this->assign('node_ip', $node->ip());
+        $this->assign('node_port', $node->port());
         $this->assign('info', $info);
+        $this->assign('cluster_info', $cluster_info);
         $this->displayTemplate('node/node.tpl.php');
     }
 

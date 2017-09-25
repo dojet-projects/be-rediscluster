@@ -27,6 +27,7 @@ class LibCluster {
         }
 
         $destination_node->setslot_node($slot, $destination_node_id);
+        $source_node->setslot_node($slot, $destination_node_id);
     }
 
 }

@@ -22,6 +22,11 @@
       <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
       <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <style type="text/css">
+      div[role=slots] div {
+        border: solid 1px gray; width: 3px; height: 3px; float: left;
+      }
+    </style>
   </head>
   <body>
 
@@ -38,11 +43,17 @@
             </tbody>
           </table>
           <button class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg">CLUSTER MEET</button>
-          <button class="btn btn-success pull-right" id="btn-rebalance">REBALANCE</button>
+          <button class="btn btn-success pull-right" id="btn-resharding">RESHARDING</button>
         </div>
       </div>
     </div> <!-- /container -->
 
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12" role="slots">
+        </div>
+      </div>
+    </div>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -58,7 +69,7 @@ $().ready(function() {
   // cluster nodes list
   function render_nodes_list() {
     $.get('/ajax/cluster/nodes', function(resp, status) {
-      console.log(resp);
+      // console.log(resp);
 
       var nl = $('table[role=nodes-list]').css('display', '');
       $("thead tr", nl).html('');
@@ -96,7 +107,7 @@ $().ready(function() {
     });
   };
   render_nodes_list();
-  window.render_nodes_list_interval = window.setInterval(render_nodes_list, 3000);
+  window.render_nodes_list_interval = window.setInterval(render_nodes_list, 5000);
 });
 </script>
 
@@ -127,37 +138,72 @@ $().ready(function() {
   </div>
 </div>
 <script type="text/javascript">
-$().ready(function() {
-  $("#redis-submit").click(function() {
-    var server = $('input[name=redis-server]').val();
-
-    var data = new FormData();
-    data.append('server', server);
+  function ajaxpostform(url, data, success) {
+    var formdata = new FormData();
+    for (k in data) {
+      formdata.append(k, data[k]);
+    }
     $.ajax({
-      url: "/ajax/cluster/meet",
+      url: url,
       type: 'POST',
-      data: data,
+      data: formdata,
       mimeType: "multipart/form-data",
       cache: false,
       contentType: false,
       processData: false,
-      success: function (data, textStatus, jqXHR) {
-        var result = JSON.parse(data);
-        if (result.errno == 0) {
-          alert("meet successfully!");
-          location.reload();
-        } else {
-          console.warn(result);
-          alert(result.message);
-        }
+      success: success
+    });
+  }
+</script>
+<script type="text/javascript">
+$().ready(function() {
 
+  $("#redis-submit").click(function() {
+    var server = $('input[name=redis-server]').val();
+
+    ajaxpostform("/ajax/cluster/meet", {"server": server}, function(data, textStatus, jqXHR) {
+      var result = JSON.parse(data);
+      if (result.errno == 0) {
+        alert("meet successfully!");
+        location.reload();
+      } else {
+        console.warn(result);
+        alert(result.message);
       }
     });
   });
 });
 </script><script type="text/javascript">
 $().ready(function() {
-  $("#btn-rebalance").click(function() {
+  $("#btn-resharding").click(function() {
+    $.get('/ajax/resharding/plan', function(resp, status) {
+      if (resp.errno == 0) {
+        var pmt = '';
+        var plan = resp.data;
+        plan.map(function(e) {
+          pmt += "node: " + e.id;
+          pmt += "\r\n";
+          pmt += "slots: ";
+          e.slots.map(function(slot) {
+            pmt += slot.from + "-" + slot.to;
+            pmt += "\r\n";
+          });
+          pmt += "\r\n";
+        });
+
+        if (confirm(pmt)) {
+          ajaxpostform('/ajax/resharding/reshard', {plan: JSON.stringify(plan)}, function(data, textStatus, jqXHR) {
+            data = JSON.parse(data);
+            console.log(data);
+            if (data.errno == 0) {
+              alert('resharding complete');
+            } else {
+              alert(data.errno);
+            }
+          });
+        }
+      }
+    }, "json");
   });
 });
 </script>

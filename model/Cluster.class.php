@@ -37,10 +37,34 @@ class Cluster {
         return $this->nodes;
     }
 
+    public function nodeCount() {
+        return count($this->nodes());
+    }
+
     public function node($id) {
         foreach ($this->nodes() as $node) {
             if ($node->id() == $id) {
                 return $node;
+            }
+        }
+        return null;
+    }
+
+    public function nodeByIpPort($ip, $port) {
+        foreach ($this->nodes() as $node) {
+            if ($node->ip() == $ip && $node->port() == $port) {
+                return $node;
+            }
+        }
+        return null;
+    }
+
+    public function nodeBySlot($slot) {
+        $slots = $this->slots();
+        foreach ($slots as $nodeslot) {
+            list($from, $to, list($ip, $port)) = $nodeslot;
+            if ($from <= $slot && $slot <= $to) {
+                return $this->nodeByIpPort($ip, $port);
             }
         }
         return null;
@@ -64,13 +88,17 @@ class Cluster {
         return null;
     }
 
-    protected function slots() {
+    public function slots() {
+        if (is_null($this->slots)) {
+            $myself = $this->myself();
+            DAssert::assertNotNull($myself);
+            $this->slots = $myself->cluster_slots();
+        }
         return $this->slots;
     }
 
     public function delslots($slots) {
-        $nodes = $this->nodes();
-        foreach ($nodes as $node) {
+        foreach ($this->nodes() as $node) {
             try {
                 $node->delslots($slots);
             } catch (Exception $e) {
