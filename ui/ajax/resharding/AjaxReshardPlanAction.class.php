@@ -9,7 +9,7 @@
 class AjaxReshardPlanAction extends RCBaseAction {
 
     protected function rcExecute(Cluster $cluster) {
-        $nodes = $cluster->nodes();
+        $nodes = $cluster->masterNodes();
         $secs = ((1 << 14) / count($nodes));
         $plan = [];
         foreach (array_values($nodes) as $key => $node) {

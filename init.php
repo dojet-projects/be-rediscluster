@@ -1,8 +1,8 @@
 <?php
 use Mod\SimpleUser\ModuleSimpleUser;
 
-require dirname(__FILE__).'/../be-dojet/dojet.php';
-require dirname(__FILE__).'/../be-global/init.php';
+require_once dirname(__FILE__).'/../be-dojet/dojet.php';
+require_once dirname(__FILE__).'/../be-global/init.php';
 
 define('UI', PRJ.'ui/');
 define('CONFIG', PRJ.'config/');

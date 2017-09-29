@@ -13,8 +13,13 @@ abstract class RCBaseAction extends XBaseAction {
 
     final public function execute() {
         $node = Config::runtimeConfigForKeyPath('cluster.node');
+        $config = [
+            'address' => MCookie::getCookie('cip'),
+            'port' => MCookie::getCookie('cport'),
+        ];
+        $this->assign('ipport', join(':', $config));
         try {
-            $redis = DRedisIns::redis($node);
+            $redis = DRedisIns::redis($config);
             $cluster = Cluster::fromRedis($redis);
         } catch (Exception $e) {
             return $this->redis_error($e);

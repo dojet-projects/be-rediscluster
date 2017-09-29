@@ -11,6 +11,9 @@
           <a class="navbar-brand" href="/">Redis Cluster Dash</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
+          <p class="navbar-text pull-right">
+            <?php echo isset($tpl_ipport) ? safeHtml($tpl_ipport) : ''; ?>
+          </p>
           <ul class="nav navbar-nav">
           </ul>
         </div><!--/.nav-collapse -->

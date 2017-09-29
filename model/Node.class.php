@@ -40,6 +40,16 @@ class Node {
         return in_array('myself', explode(',', $flags));
     }
 
+    public function isMaster() {
+        $flags = $this->nodeArr['flags'];
+        return in_array('master', explode(',', $flags));
+    }
+
+    public function isSlave() {
+        $flags = $this->nodeArr['flags'];
+        return in_array('slave', explode(',', $flags));
+    }
+
     public function toArray() {
         return $this->nodeArr;
     }
@@ -107,6 +117,10 @@ class Node {
         return $this->redis()->cluster_slots();
     }
 
+    public function cluster_keyslot($key) {
+        return $this->redis()->cluster_keyslot($key);
+    }
+
     public function cluster_info() {
         $str = $this->redis()->cluster_info();
         return array_map(function($e) {
@@ -169,7 +183,7 @@ class Node {
                 continue;
             }
             $p = strpos($line, ":");
-            $i[substr($line, 0, $p)] = substr($line, $p);
+            $i[substr($line, 0, $p)] = substr($line, $p + 1);
         }
         unset($i);
         return $info;
@@ -177,6 +191,15 @@ class Node {
 
     public function migrate($host, $port, $key, $destination_db, $timeout) {
         return $this->redis()->migrate($host, $port, $key, $destination_db, $timeout);
+    }
+
+    public function reset($type) {
+        return $this->redis()->cluster_reset($type);
+    }
+
+    public function replicate(Node $master_node) {
+        $master_node_id = $master_node->id();
+        return $this->redis()->replicate($master_node_id);
     }
 
 }

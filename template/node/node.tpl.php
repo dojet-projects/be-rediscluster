@@ -49,8 +49,9 @@
           <button class="btn btn-danger" id="btn-delslots">DelSlots</button>
           <button class="btn btn-success" id="btn-migrate">Migrate Slot</button>
           <h3>Info</h3>
-          <p><?php echo nl2br(safeHtml($tpl_info));?></p>
+          <p><?php echo nl2br(safeHtml(print_r($tpl_info, true)));?></p>
           <button class="btn btn-danger" id="btn-forget">FORGET</button>
+          <button class="btn btn-danger" id="btn-reset">RESET</button>
         </div>
       </div>
     </div> <!-- /container -->
@@ -104,6 +105,23 @@ $().ready(function() {
 </script>
 <script type="text/javascript">
 $().ready(function() {
+  $('#btn-reset').click(function() {
+    if (!confirm('are you sure to reset this node?')) {
+      return;
+    }
+    $.post('/ajax/cluster/reset', {id: node_id}, function(data, textStatus, jqXHR) {
+      var errno = data.errno;
+      if (0 == errno) {
+        alert('reset success');
+      } else {
+        alert("[ERROR]" + data.message);
+      }
+    }, "json");
+  });
+})
+</script>
+<script type="text/javascript">
+$().ready(function() {
   $('#btn-addslots').click(function() {
     var slots = prompt("input slots:");
     $.post('/ajax/cluster/addslots', {id: node_id, slots: slots}, function(data, textStatus, jqXHR) {
@@ -145,6 +163,25 @@ $().ready(function() {
         var errno = data.errno;
         if (0 == errno) {
           alert("migrate slot success");
+          get_slots();
+        } else {
+          alert("[ERROR]" + data.message);
+        }
+      },
+    "json");
+  });
+})
+</script>
+<script type="text/javascript">
+$().ready(function() {
+  $('#btn-replicate').click(function() {
+    var master_node_id = prompt("master_node_id:");
+    $.post('/ajax/cluster/replicate',
+      {node_id: node_id, master_node_id: master_node_id},
+      function(data, textStatus, jqXHR) {
+        var errno = data.errno;
+        if (0 == errno) {
+          alert("replicate success");
           get_slots();
         } else {
           alert("[ERROR]" + data.message);

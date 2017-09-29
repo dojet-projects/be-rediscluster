@@ -27,6 +27,8 @@
         border: solid 1px gray; width: 3px; height: 3px; float: left;
       }
     </style>
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
   <body>
 
@@ -36,12 +38,7 @@
       <div class="row">
         <div class="col-xs-12">
           <h4>Node List</h4>
-          <table role="nodes-list" class="table table-hover" style="display: none;">
-            <thead><tr></tr>
-            </thead>
-            <tbody>
-            </tbody>
-          </table>
+<?php include TEMPLATE.'mod/nodelist.tpl.php'; ?>
           <button class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg">CLUSTER MEET</button>
           <button class="btn btn-success pull-right" id="btn-resharding">RESHARDING</button>
         </div>
@@ -58,58 +55,9 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </body>
 </html>
 
-<script type="text/javascript">
-$().ready(function() {
-
-  // cluster nodes list
-  function render_nodes_list() {
-    $.get('/ajax/cluster/nodes', function(resp, status) {
-      // console.log(resp);
-
-      var nl = $('table[role=nodes-list]').css('display', '');
-      $("thead tr", nl).html('');
-      $("tbody", nl).html('');
-
-      var data = resp.data;
-      if (data.length <= 0) {
-        console.log("no cluster nodes");
-      }
-      for (title in data[0]) {
-        $("thead tr", nl).append("<th>" + title + "</th>");
-      }
-
-      for (idx in data) {
-        var new_tr = $("<tr>").appendTo($("tbody", nl));
-        for (k in data[idx]) {
-          $("<td>").html(data[idx][k]).attr('data-key', k).appendTo(new_tr);
-        }
-      }
-
-      function _make_node_link(e, id) {
-        if (id.length < 40) {return;}
-        var a = $('<a>').attr({"title": id, 'href': "/node/" + id});
-        a.html(id.substring(0, 16) + '...');
-        $(e).html(a);
-      }
-
-      $("td[data-key=id]").each(function(i, e) {
-        _make_node_link(e, $(e).html());
-      });
-
-      $("td[data-key=master]").each(function(i, e) {
-        _make_node_link(e, $(e).html());
-      });
-    });
-  };
-  render_nodes_list();
-  window.render_nodes_list_interval = window.setInterval(render_nodes_list, 5000);
-});
-</script>
 
 <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="">
   <div class="modal-dialog">
@@ -124,10 +72,6 @@ $().ready(function() {
             <label for="">REDIS NODE IP:PORT</label>
             <input type="text" name="redis-server" class="form-control" placeholder="ip:port">
           </div>
-          <!-- <div class="form-group">
-            <label for="exampleInputEmail1">AUTH</label>
-            <input type="text" name="redis-auth" class="form-control" placeholder="auth">
-          </div> -->
         </form>
       </div>
       <div class="modal-footer">
@@ -173,7 +117,8 @@ $().ready(function() {
     });
   });
 });
-</script><script type="text/javascript">
+</script>
+<script type="text/javascript">
 $().ready(function() {
   $("#btn-resharding").click(function() {
     $.get('/ajax/resharding/plan', function(resp, status) {

@@ -41,6 +41,12 @@ class Cluster {
         return count($this->nodes());
     }
 
+    public function masterNodes() {
+        return array_filter($this->nodes(), function($node) {
+            return $node->isMaster();
+        });
+    }
+
     public function node($id) {
         foreach ($this->nodes() as $node) {
             if ($node->id() == $id) {
@@ -86,6 +92,12 @@ class Cluster {
             }
         }
         return null;
+    }
+
+    public function set($key, $value) {
+        $slot = $this->myself()->cluster_keyslot($key);
+        $node = $this->nodeBySlot($slot);
+        return $node->redis()->set($key, $value);
     }
 
     public function slots() {
