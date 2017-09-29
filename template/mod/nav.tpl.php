@@ -15,6 +15,7 @@
             <?php echo isset($tpl_ipport) ? safeHtml($tpl_ipport) : ''; ?>
           </p>
           <ul class="nav navbar-nav">
+            <li><a href="/nodelist">Node List</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>

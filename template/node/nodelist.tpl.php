@@ -41,7 +41,7 @@
         <div class="col-xs-12 col-lg-3 col-md-4 col-sm-6" role="node" data-node-id="<?php echo safeHtml($node->id()); ?>">
           <div class="thumbnail" style="overflow: hidden;">
             <div class="caption">
-              <h4><?php echo $node->ip().':'.$node->port(); ?></h4>
+              <h4><a href="/node/<?php echo $node->id() ?>"><?php echo $node->ip().':'.$node->port(); ?></a></h4>
               <hr />
               <p>node-id: <span role="node-id"><?php echo substr($node->id(), 0, 16).'...' ?></span></p>
               <p><span role="keyspace">db0: k=6382342, e=0, ttl=123748974823</span></p>
@@ -75,18 +75,19 @@
         }
         var info = data.data.info;
         for (var id in info) {
+          var redis_info = info[id]['redis_info'];
           var nodediv = $('div[data-node-id=' + id + ']');
           var keyspace = [];
-          for (var db in info[id]['keyspace']) {
-            keyspace.push(db + ':' + info[id]['keyspace'][db]);
+          for (var db in redis_info['Keyspace']) {
+            keyspace.push(db + ':' + redis_info['Keyspace'][db]);
           }
           $('span[role=keyspace]', nodediv).html(keyspace.join("<br />"));
           $('span[role=slots]', nodediv).html(info[id]['slots'].map(function(e) {
             return e[0] + '-' + e[1];
           }).join(' '));
-          $('span[role=used_memory]', nodediv).html(info[id]['used_memory']);
-          $('span[role=used_memory_peak]', nodediv).html(info[id]['used_memory_peak']);
-          $('span[role=mem_fragmentation_ratio]', nodediv).html(info[id]['mem_fragmentation_ratio']);
+          $('span[role=used_memory]', nodediv).html(redis_info['Memory']['used_memory_human']);
+          $('span[role=used_memory_peak]', nodediv).html(redis_info['Memory']['used_memory_peak_human']);
+          $('span[role=mem_fragmentation_ratio]', nodediv).html(redis_info['Memory']['mem_fragmentation_ratio']);
         }
       });
     }

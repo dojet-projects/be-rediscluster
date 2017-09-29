@@ -123,9 +123,16 @@ class Node {
 
     public function cluster_info() {
         $str = $this->redis()->cluster_info();
-        return array_map(function($e) {
-            return explode(":", trim($e));
-        }, explode("\n", trim($str)));
+        return
+            array_reduce(
+                array_map(function($e) {
+                    return array_pad(explode(":", trim($e)), 2, null);
+                }, explode("\n", trim($str))),
+                function($reduce, $e) {
+                    $reduce[$e[0]] = $e[1];
+                    return $reduce;
+                }, []
+            );
     }
 
     public function cluster_nodes() {

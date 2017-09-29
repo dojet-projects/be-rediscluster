@@ -14,4 +14,8 @@ class NodeListAction extends RCBaseAction {
         $this->displayTemplate('node/nodelist.tpl.php');
     }
 
+    protected function redis_error(Exception $e) {
+        redirect('/');
+    }
+
 }

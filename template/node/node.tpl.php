@@ -39,17 +39,52 @@
               Port: <?php echo $tpl_node_port ?>
             </small>
           </h2>
-          <p><?php echo join("<br />", array_map(function($e) {
-            return join(":", $e);
-          }, $tpl_cluster_info)); ?></p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 col-lg-6">
+          <h3>Cluster Info</h3>
+          <ul class="list-group">
+          <?php foreach ($tpl_cluster_info as $key => $value) : ?>
+            <li class="list-group-item"><?php echo safeHtml(sprintf("%s : %s", $key, $value)); ?></li>
+          <?php endforeach ?>
+          </ul>
+        </div>
+        <div class="col-xs-12 col-lg-6">
+          <h3>Redis Info</h3>
+          <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+          <?php foreach ($tpl_info as $name => $section) :
+                  $collapse_id = sprintf("collapse-%s", $name);
+          ?>
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab" id="heading<?php echo safeHtml($collapse_id)?>">
+                <h4 class="panel-title">
+                  <a role="button" data-toggle="collapse" data-parent="#" href="#<?php echo safeHtml($collapse_id) ?>" aria-expanded="false" aria-controls="<?php echo safeHtml($collapse_id) ?>">
+                    <?php echo safeHtml($name); ?>
+                  </a>
+                </h4>
+              </div>
+              <div id="<?php echo safeHtml($collapse_id) ?>" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading<?php echo safeHtml($collapse_id)?>">
+                <ul class="list-group">
+                <?php foreach ($section as $key => $value) : ?>
+                  <li class="list-group-item"><?php echo safeHtml(sprintf("%s : %s", $key, $value));?></li>
+                <?php endforeach ?>
+                </ul>
+              </div>
+            </div>
+          <?php endforeach ?>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
           <button class="btn btn-success" id="btn-replicate">Replicate</button>
           <h3>slots</h3>
           <p id="slots"></p>
           <button class="btn btn-primary" id="btn-addslots">AddSlots</button>
           <button class="btn btn-danger" id="btn-delslots">DelSlots</button>
           <button class="btn btn-success" id="btn-migrate">Migrate Slot</button>
-          <h3>Info</h3>
-          <p><?php echo nl2br(safeHtml(print_r($tpl_info, true)));?></p>
+          <h3>Dangerous Opts</h3>
           <button class="btn btn-danger" id="btn-forget">FORGET</button>
           <button class="btn btn-danger" id="btn-reset">RESET</button>
         </div>
