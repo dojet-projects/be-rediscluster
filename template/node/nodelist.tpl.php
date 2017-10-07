@@ -44,11 +44,12 @@
               <h4><a href="/node/<?php echo $node->id() ?>"><?php echo $node->ip().':'.$node->port(); ?></a></h4>
               <hr />
               <p>node-id: <span role="node-id"><?php echo substr($node->id(), 0, 16).'...' ?></span></p>
-              <p><span role="keyspace">db0: k=6382342, e=0, ttl=123748974823</span></p>
-              <p>slots: <span role="slots">0-34773</span></p>
-              <p>used_memory:<span role="used_memory">24.29M</span></p>
-              <p>used_memory_peak:<span role="used_memory_peak">24.32M</span></p>
-              <p>mem_fragmentation_ratio:<span role="mem_fragmentation_ratio">1.03</span></p>
+              <p><span role="keyspace"></span></p>
+              <p>slots: <span role="slots"></span></p>
+              <p>used_memory:<span role="used_memory"></span></p>
+              <p>used_memory_rss:<span role="used_memory_rss"></span></p>
+              <p>used_memory_peak:<span role="used_memory_peak"></span></p>
+              <p>mem_fragmentation_ratio:<span role="mem_fragmentation_ratio"></span></p>
             </div>
           </div>
         </div>
@@ -86,6 +87,7 @@
             return e[0] + '-' + e[1];
           }).join(' '));
           $('span[role=used_memory]', nodediv).html(redis_info['Memory']['used_memory_human']);
+          $('span[role=used_memory_rss]', nodediv).html(redis_info['Memory']['used_memory_rss']);
           $('span[role=used_memory_peak]', nodediv).html(redis_info['Memory']['used_memory_peak_human']);
           $('span[role=mem_fragmentation_ratio]', nodediv).html(redis_info['Memory']['mem_fragmentation_ratio']);
         }

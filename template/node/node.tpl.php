@@ -79,11 +79,29 @@
       <div class="row">
         <div class="col-xs-12">
           <button class="btn btn-success" id="btn-replicate">Replicate</button>
+        </div>
+      </div>
+
+      <!-- slots -->
+      <div class="row">
+        <div class="col-xs-12">
           <h3>slots</h3>
-          <p id="slots"></p>
+          <div id="slots"></div>
+        </div>
+      </div>
+      <div role="slot-list">
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
           <button class="btn btn-primary" id="btn-addslots">AddSlots</button>
           <button class="btn btn-danger" id="btn-delslots">DelSlots</button>
           <button class="btn btn-success" id="btn-migrate">Migrate Slot</button>
+        </div>
+      </div>
+      <!-- // slots -->
+
+      <div class="row">
+        <div class="col-xs-12">
           <h3>Dangerous Opts</h3>
           <button class="btn btn-danger" id="btn-forget">FORGET</button>
           <button class="btn btn-danger" id="btn-reset">RESET</button>
@@ -99,17 +117,70 @@
     <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </body>
 </html>
+<div style="display: none;">
+  <div class="row" id="the_slotbar">
+    <div class="col-sm-2"><span role="slots"></span></div>
+    <div class="col-sm-9">
+      <div class="progress" role="bar">
+        <div class="progress-bar" role="from" style="width: 0%; background-color: rgba(0,0,0,0); -webkit-box-shadow:none;"></div>
+        <div class="progress-bar progress-bar-success" role="length" style="width: 0%"></div>
+      </div>
+    </div>
+    <div class="col-sm-1">
+      <button class="btn btn-primary btn-sm" role="mig-btn" data-from="" data-to="">Migrate</button>
+    </div>
+  </div>
+
+  <div class="modal fade" id="migratedialog" tabindex="-1" role="dialog" aria-labelledby="migratedialogLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="migratedialogLabel">New message</h4>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label for="recipient-name" class="control-label">Recipient:</label>
+              <input type="text" class="form-control" id="recipient-name">
+            </div>
+            <div class="form-group">
+              <label for="message-text" class="control-label">Message:</label>
+              <textarea class="form-control" id="message-text"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Send message</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<script type="text/javascript">
+$().ready(function() {
+  $('button[role=mig-btn]').click(function() {
+
+  })
+});
+</script>
+</div>
 <script type="text/javascript">
 function get_slots() {
   $.post('/ajax/cluster/slots', {id: node_id}, function(data, textStatus, jqXHR) {
     var errno = data.errno;
     if (0 == errno) {
       var slots = data.data.slots;
-      $('#slots').html(
-        slots.map(function(e, i) {
-          return e[0] != e[1] ? e[0] + '-' + e[1] : e[0];
-        }).join(' , ')
-      );
+      $('#slots').children().remove()
+      slots.map(function(e, i) {
+        var bar = $('#the_slotbar').clone().removeAttr('id');
+        var from = e[0];
+        var to = e[1];
+        $('span[role=slots]', bar).html(e[0] + '-' + e[1]);
+        $('div[role=from]', bar).css("width", (from / 163.84) + "%");
+        $('div[role=length]', bar).css("width", ((to - from + 1) / 163.84) + "%");
+        bar.appendTo($('#slots'));
+      });
     } else {
       console.log("[ERROR]" + data.message);
     }
@@ -118,7 +189,7 @@ function get_slots() {
 
 $().ready(function() {
   get_slots();
-  setInterval(get_slots, 3000);
+  setInterval(get_slots, 30000);
 })
 </script>
 <script type="text/javascript">

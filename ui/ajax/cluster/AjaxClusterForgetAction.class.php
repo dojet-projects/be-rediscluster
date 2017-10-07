@@ -10,12 +10,14 @@ class AjaxClusterForgetAction extends RCBaseAction {
 
     protected function rcExecute(Cluster $cluster) {
         $id = MRequest::post('id');
+        $thisnode = $cluster->node($id);
 
-        foreach ($cluster->nodes() as $node) {
-            if ($node->id() == $id) {
+        foreach ($thisnode->cluster()->nodes() as $node) {
+            if ($node->isMyself()) {
                 continue;
             }
-            $node->forget($id);
+            $node->forget($thisnode);
+            $thisnode->forget($node);
         }
         return $this->displayJsonSuccess();
     }

@@ -101,8 +101,8 @@ class Node {
         return $this->redis()->cluster_meet($ip, $port);
     }
 
-    public function forget($node_id) {
-        return $this->redis()->cluster_forget($node_id);
+    public function forget(Node $node) {
+        return $this->redis()->cluster_forget($node->id());
     }
 
     public function addslots($slots) {
