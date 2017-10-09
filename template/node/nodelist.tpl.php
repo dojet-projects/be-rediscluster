@@ -39,6 +39,11 @@
       <div class="row">
         <div id="nodes"></div>
       </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <button class="btn btn-primary" id="btn-meet">MEET</button>
+        </div>
+      </div>
     </div> <!-- /container -->
 
     <div style="display: none;">
@@ -46,6 +51,23 @@
     </div>
   </body>
 </html>
+<script type="text/javascript">
+  $().ready(function() {
+    $('#btn-meet').click(function() {
+      var ipport = prompt("input node ip:port");
+      ajaxpostform("/ajax/cluster/meet", {"server": ipport}, function(data, textStatus, jqXHR) {
+        var result = JSON.parse(data);
+        if (result.errno == 0) {
+          alert("meet successfully!");
+          // location.reload();
+        } else {
+          console.warn(result);
+          alert(result.message);
+        }
+      });
+    });
+  });
+</script>
 <script type="text/javascript">
   $().ready(function() {
     function refresh_nodes() {
