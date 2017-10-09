@@ -14,11 +14,15 @@ class AjaxNodeInfoAction extends RCBaseAction {
         $info = [];
         foreach ($arrNodeIDs as $id) {
             $node = $cluster->node($id);
+            if (is_null($node)) {
+                continue;
+            }
             $redis_info = $node->redis_info();
             $slots = $node->slots();
             $info[$id] = [
                 'redis_info' => $redis_info,
                 'slots' => $slots,
+                'node' => $node->toArray(),
             ];
         }
         return $this->displayJsonSuccess(['info' => $info]);

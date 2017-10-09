@@ -37,63 +37,55 @@
 
     <div class="container" role="main">
       <div class="row">
-<?php foreach ($tpl_nodes as $node) : ?>
-        <div class="col-xs-12 col-lg-3 col-md-4 col-sm-6" role="node" data-node-id="<?php echo safeHtml($node->id()); ?>">
-          <div class="thumbnail" style="overflow: hidden;">
-            <div class="caption">
-              <h4><a href="/node/<?php echo $node->id() ?>"><?php echo $node->ip().':'.$node->port(); ?></a></h4>
-              <hr />
-              <p>node-id: <span role="node-id"><?php echo substr($node->id(), 0, 16).'...' ?></span></p>
-              <p><span role="keyspace"></span></p>
-              <p>slots: <span role="slots"></span></p>
-              <p>used_memory:<span role="used_memory"></span></p>
-              <p>used_memory_rss:<span role="used_memory_rss"></span></p>
-              <p>used_memory_peak:<span role="used_memory_peak"></span></p>
-              <p>mem_fragmentation_ratio:<span role="mem_fragmentation_ratio"></span></p>
-            </div>
-          </div>
-        </div>
-<?php endforeach ?>
+        <div id="nodes"></div>
       </div>
     </div> <!-- /container -->
 
-
+    <div style="display: none;">
+<?php include TEMPLATE.'mod/node.block.tpl.php'; ?>
+    </div>
   </body>
 </html>
 <script type="text/javascript">
   $().ready(function() {
-    function refresh_nodeinfo() {
-      var ids = [];
-      $('div[role=node]').each(function(i, e) {
-        ids.push($(e).attr('data-node-id'));
-      });
-      ajaxpostform("/ajax/nodeinfo", {ids: ids}, function(data, status) {
+    function refresh_nodes() {
+      ajaxpostform("/ajax/cluster/nodes", {}, function(data, status) {
+        // $('#nodes').html("");
         data = JSON.parse(data);
-        console.log(data);
+        // console.log(data);
         if (data.errno != 0) {
           console.log(data.message);
           return;
         }
-        var info = data.data.info;
-        for (var id in info) {
-          var redis_info = info[id]['redis_info'];
-          var nodediv = $('div[data-node-id=' + id + ']');
-          var keyspace = [];
-          for (var db in redis_info['Keyspace']) {
-            keyspace.push(db + ':' + redis_info['Keyspace'][db]);
+
+        var exists = {};
+        $('div[role=node-block]').each(function(i, e) {
+          exists[$(e).attr('data-node-id')] = e;
+        });
+
+        g.nodes = data.data;
+        for (var i in g.nodes) {
+          var id = g.nodes[i].id;
+          // console.log(id);
+          if ($('div[data-node-id=' + id + ']').length == 0) {
+            var b = $('#node-block').clone().removeAttr('id');
+            b.attr('data-node-id', id).attr('role', 'node-block');
+            b.appendTo($('#nodes'));
           }
-          $('span[role=keyspace]', nodediv).html(keyspace.join("<br />"));
-          $('span[role=slots]', nodediv).html(info[id]['slots'].map(function(e) {
-            return e[0] + '-' + e[1];
-          }).join(' '));
-          $('span[role=used_memory]', nodediv).html(redis_info['Memory']['used_memory_human']);
-          $('span[role=used_memory_rss]', nodediv).html(redis_info['Memory']['used_memory_rss']);
-          $('span[role=used_memory_peak]', nodediv).html(redis_info['Memory']['used_memory_peak_human']);
-          $('span[role=mem_fragmentation_ratio]', nodediv).html(redis_info['Memory']['mem_fragmentation_ratio']);
+          delete exists[id];
         }
+
+        for (var id in exists) {
+          $('div[data-node-id=' + id + ']').remove();
+        }
+
+        refresh_nodeinfo();
       });
     }
-    refresh_nodeinfo();
-    setInterval(refresh_nodeinfo, 3000);
+    refresh_nodes();
+    setInterval(refresh_nodes, 3000);
   });
+</script>
+<script type="text/javascript">
+  var g = {nodes: []};
 </script>
