@@ -76,12 +76,13 @@
           </div>
         </div>
       </div>
+<!--
       <div class="row">
         <div class="col-xs-12">
           <button class="btn btn-success" id="btn-replicate">Replicate</button>
         </div>
       </div>
-
+ -->
       <!-- slots -->
       <div class="row">
         <div class="col-xs-12">

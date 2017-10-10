@@ -17,9 +17,23 @@ class AjaxClusterAddSlotsAction extends RCBaseAction {
             return $this->displayJsonFail('node not exists');
         }
 
-        $slots = array_map(function($s) {
+        $arrSlots = array_map(function($s) {
             return trim($s);
         }, explode(",", $slots));
+
+        $slots = [];
+        foreach ($arrSlots as $seg) {
+            if (is_numeric($seg)) {
+                $slots[] = $seg;
+                continue;
+            }
+            list($from, $to) = array_pad(explode('-', $seg), 2, null);
+            if (is_numeric($from) && is_numeric($to)) {
+                $slots = array_merge($slots, range($from, $to));
+                continue;
+            }
+            return $this->displayJsonFail('illegal slots ['.$seg.']');
+        }
         DAssert::assertNotEmptyNumericArray($slots);
 
         try {
