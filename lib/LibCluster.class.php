@@ -30,4 +30,24 @@ class LibCluster {
         $source_node->setslot_node($slot, $destination_node_id);
     }
 
+    public static function parseSlots($arrSlotSegs) {
+        $segs = array_map(function($s) {
+            return trim($s);
+        }, $arrSlotSegs);
+
+        $slots = [];
+        foreach ($arrSlots as $seg) {
+            if (is_numeric($seg)) {
+                $slots[] = $seg;
+                continue;
+            }
+            list($from, $to) = array_pad(explode('-', $seg), 2, null);
+            if (is_numeric($from) && is_numeric($to)) {
+                $slots = array_merge($slots, range($from, $to));
+                continue;
+            }
+            return $this->displayJsonFail('illegal slots ['.$seg.']');
+        }
+    }
+
 }

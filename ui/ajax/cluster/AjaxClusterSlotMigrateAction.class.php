@@ -9,23 +9,26 @@
 class AjaxClusterSlotMigrateAction extends RCBaseAction {
 
     protected function rcExecute(Cluster $cluster) {
-        $slot = MRequest::post('slot');
+        $slots = MRequest::post('slots');
         $source_node_id = MRequest::post('source_node_id');
         $destination_node_id = MRequest::post('destination_node_id');
 
+        $data = ['migrated' => []];
         try {
             $source_node = $cluster->node($source_node_id);
             $destination_node = $cluster->node($destination_node_id);
-
-            LibCluster::migrate_slot($slot, $source_node, $destination_node);
-
-        } catch (DRedisException $e) {
-            if ($e->getCode() == DRedisException::REPLY_ERROR) {
-                return $this->displayJsonFail(null, $e->getMessage());
+            foreach ($slots as $slot) {
+                LibCluster::migrate_slot($slot, $source_node, $destination_node);
+                $data['migrated'][] = $slot;
             }
+
+        } catch (Exception $e) {
+            // if ($e->getCode() == DRedisException::REPLY_ERROR) {
+                return $this->displayJsonFail($data, $e->getMessage());
+            // }
         }
 
-        return $this->displayJsonSuccess();
+        return $this->displayJsonSuccess($data);
     }
 
 }

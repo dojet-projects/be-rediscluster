@@ -96,7 +96,6 @@
         <div class="col-xs-12">
           <button class="btn btn-primary" id="btn-addslots">AddSlots</button>
           <button class="btn btn-danger" id="btn-delslots">DelSlots</button>
-          <button class="btn btn-success" id="btn-migrate">Migrate Slot</button>
         </div>
       </div>
       <!-- // slots -->
@@ -119,7 +118,8 @@
   </body>
 </html>
 <div style="display: none;">
-  <div class="row" id="the_slotbar">
+  <!-- slots bar -->
+  <div class="row" id="the_slotbar" role="-slot-bar">
     <div class="col-sm-2"><span role="slots"></span></div>
     <div class="col-sm-9">
       <div class="progress" role="bar">
@@ -128,43 +128,11 @@
       </div>
     </div>
     <div class="col-sm-1">
-      <button class="btn btn-primary btn-sm" role="mig-btn" data-from="" data-to="">Migrate</button>
+      <button class="btn btn-primary btn-sm" role="mig-btn" data-toggle="modal" data-target="#modal-migrate">Migrate</button>
     </div>
   </div>
+  <!-- // slot bar -->
 
-  <div class="modal fade" id="migratedialog" tabindex="-1" role="dialog" aria-labelledby="migratedialogLabel">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="migratedialogLabel">New message</h4>
-        </div>
-        <div class="modal-body">
-          <form>
-            <div class="form-group">
-              <label for="recipient-name" class="control-label">Recipient:</label>
-              <input type="text" class="form-control" id="recipient-name">
-            </div>
-            <div class="form-group">
-              <label for="message-text" class="control-label">Message:</label>
-              <textarea class="form-control" id="message-text"></textarea>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Send message</button>
-        </div>
-      </div>
-    </div>
-  </div>
-<script type="text/javascript">
-$().ready(function() {
-  $('button[role=mig-btn]').click(function() {
-
-  })
-});
-</script>
 </div>
 <script type="text/javascript">
 function get_slots() {
@@ -172,14 +140,15 @@ function get_slots() {
     var errno = data.errno;
     if (0 == errno) {
       var slots = data.data.slots;
-      $('#slots').children().remove()
+      $('#slots').children().remove();
       slots.map(function(e, i) {
-        var bar = $('#the_slotbar').clone().removeAttr('id');
+        var bar = $('#the_slotbar').clone().removeAttr('id').attr('role', 'slot-bar');
         var from = e[0];
         var to = e[1];
-        $('span[role=slots]', bar).html(e[0] + '-' + e[1]);
-        $('div[role=from]', bar).css("width", (from / 163.84) + "%");
-        $('div[role=length]', bar).css("width", ((to - from + 1) / 163.84) + "%");
+        bar.find('span[role=slots]').html(e[0] + '-' + e[1]);
+        bar.find('div[role=from]').css("width", (from / 163.84) + "%");
+        bar.find('div[role=length]').css("width", ((to - from + 1) / 163.84) + "%");
+        bar.find('button[role=mig-btn]').data({'from': from, 'to': to});
         bar.appendTo($('#slots'));
       });
     } else {
@@ -189,6 +158,27 @@ function get_slots() {
 };
 
 $().ready(function() {
+  $('#modal-migrate').on('show.bs.modal', function(event) {
+    var btn = $(event.relatedTarget);
+    var d = btn.data();
+    var m = $(event.target);
+    m.find('#mig-from').val(d.from).attr({'min': d.from, 'max': d.to});
+    m.find('#mig-to').val(d.to).attr({'min': d.from, 'max': d.to});
+    var sel = m.find('select#migrate');
+    sel.children().remove();
+    $.post('/ajax/cluster/nodes', {}, function(data, textStatus, jqXHR) {
+      var nodes = data.data;
+      for (var i in nodes) {
+        var id = nodes[i].id;
+        if (id == window.g.node_id) {
+          continue;
+        }
+        var ipport = nodes[i]['ip:port'];
+        $('<option>').val(id).html(ipport + '(' + id + ')').appendTo(sel);
+      }
+    });
+  });
+
   get_slots();
   setInterval(get_slots, 30000);
 })
@@ -259,25 +249,107 @@ $().ready(function() {
   });
 })
 </script>
+
+<!-- migrate modal -->
+<div class="modal fade" id="modal-migrate" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Migrate Slots</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal">
+          <div class="form-group">
+            <label for="mig-from" class="col-sm-2 control-label">From</label>
+            <div class="col-sm-10">
+              <input type="number" class="form-control" id="mig-from" placeholder="" name="from" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="mig-to" class="col-sm-2 control-label">To</label>
+            <div class="col-sm-10">
+              <input type="number" class="form-control" id="mig-to" placeholder="" name="to" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="mig-to" class="col-sm-2 control-label">Migrate</label>
+            <div class="col-sm-10">
+              <select class="form-control" name="migrate" id="migrate">
+                <option>1</option>
+              </select>
+            </div>
+          </div>
+
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="btn-migrate">Migrate</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- migrate modal -->
+
 <script type="text/javascript">
-$().ready(function() {
-  $('#btn-migrate').click(function() {
-    var slot = prompt("input slot:");
-    var destination_node_id = prompt("destination_node_id:");
-    $.post('/ajax/cluster/migrate-slot',
-      {source_node_id: node_id, destination_node_id: destination_node_id, slot: slot},
-      function(data, textStatus, jqXHR) {
+  $().ready(function() {
+    var all_slots = {};
+    var source_node_id = node_id;
+    var migrate_node_id;
+
+    function migrate_slots() {
+      console.log(Object.keys(all_slots).length);
+      if (Object.keys(all_slots).length <= 0) { return ; }
+      var max = 100;
+      var num = 1;
+      var payload_slots = [];
+      for (var slot in all_slots) {
+        payload_slots.push(slot);
+        if (++num > max) break;
+      }
+
+      var payload = {
+        slots: payload_slots,
+        source_node_id: node_id,
+        destination_node_id: migrate_node_id
+      };
+      // console.log(payload);
+      $.post('/ajax/cluster/migrate-slot', payload, function(data, textStatus, jqXHR) {
         var errno = data.errno;
+        // console.log(data);
         if (0 == errno) {
-          alert("migrate slot success");
+          // alert('migrate success');
           get_slots();
+          var migrated = data.data.migrated;
+          console.log(migrated);
+          for (var s in migrated) {
+            delete all_slots[migrated[s]];
+          }
+          setTimeout(migrate_slots, 100);
         } else {
+          get_slots();
           alert("[ERROR]" + data.message);
         }
-      },
-    "json");
+      }, "json");
+    }
+
+    $('#btn-migrate').click(function() {
+      var m = $('#modal-migrate');
+      var migrate = m.find('select[name=migrate]').val();
+      var from = m.find('input[name=from]').val();
+      var to = m.find('input[name=to]').val();
+      for (s = parseInt(from); s <= parseInt(to); s++) {
+        all_slots[s] = s;
+      }
+      console.log(from, to, all_slots);
+      source_node_id = node_id;
+      migrate_node_id = migrate;
+
+      migrate_slots();
+      // alert(migrate);
+    })
   });
-})
 </script>
 <script type="text/javascript">
 $().ready(function() {
@@ -297,4 +369,8 @@ $().ready(function() {
     "json");
   });
 })
+</script>
+<script type="text/javascript">
+  window.g = {};
+  window.g.node_id = '<?php echo safeHtml($tpl_node_id)?>';
 </script>
