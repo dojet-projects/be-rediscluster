@@ -1,7 +1,7 @@
 <div class="col-xs-12 col-lg-3 col-md-4 col-sm-6" id="node-block" role="" data-node-id="">
   <div class="thumbnail" style="overflow: hidden;">
     <div class="caption">
-      <h4><a href="" role="node-href"></a></h4>
+      <h4><span class="label" role="role">M</span> <a href="" role="node-href"></a></h4>
       <hr />
       <p>node-id: <span role="node-id"></span></p>
       <p><span role="keyspace"></span></p>
@@ -38,6 +38,12 @@ function refresh_nodeinfo() {
       }
       $('a[role=node-href]', nodediv).html(info[id]['node']['ip:port']);
       $('a[role=node-href]', nodediv).attr('href', 'node/' + id);
+      var role = redis_info['Replication']['role'];
+      if (role == 'master') {
+        nodediv.find('span[role=role]').html('M').addClass("label-primary");
+      } else if (role == 'slave') {
+        nodediv.find('span[role=role]').html('S').addClass("label-warning");
+      }
       $('span[role=node-id]', nodediv).html(id.substr(0, 16) + '...');
       $('span[role=keyspace]', nodediv).html(keyspace.join("<br />"));
       $('span[role=slots]', nodediv).html(info[id]['slots'].map(function(e) {

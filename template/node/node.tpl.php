@@ -66,7 +66,7 @@
               </div>
               <div id="<?php echo safeHtml($collapse_id) ?>" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading<?php echo safeHtml($collapse_id)?>">
                 <ul class="list-group">
-                <?php foreach ($section as $key => $value) : ?>
+                <?php foreach ((array)$section as $key => $value) : ?>
                   <li class="list-group-item"><?php echo safeHtml(sprintf("%s : %s", $key, $value));?></li>
                 <?php endforeach ?>
                 </ul>
